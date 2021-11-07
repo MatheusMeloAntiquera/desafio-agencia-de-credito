@@ -1,0 +1,66 @@
+version: "3.1"
+
+services:
+  postgres:
+    image: postgres
+    container_name: base-a-pg
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: teste
+    volumes:
+      - ./databases/postgres/data/:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - bridge-network
+  mongo:
+    image: mongo
+    container_name: base-b-mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: teste
+    volumes:
+      - ./databases/mongodb/data:/data/db
+    ports:
+      - 27017:27017
+    networks:
+      - bridge-network
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: teste
+      ME_CONFIG_MONGODB_URL: mongodb://root:teste@mongo:27017/
+    depends_on:
+      - mongo
+    networks:
+      - bridge-network
+  elasticsearch:
+    container_name: base-c-elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.1
+    restart: always
+    environment:
+      - discovery.type=single-node
+    volumes:
+      - ./databases/elasticsearch/data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - bridge-network
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:7.15.1
+    restart: always
+    ports:
+      - 5601:5601
+    networks:
+      - bridge-network
+networks:
+  bridge-network:
+    driver: "bridge"
+    name: bridge-network
