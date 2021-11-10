@@ -81,6 +81,28 @@ services:
       - ./nginx/conf.d/:/etc/nginx/conf.d/
     networks:
       - bridge-network
+  score-service:
+    build:
+      context: ./apps/score-service/vendor/laravel/sail/runtimes/8.0
+      dockerfile: Dockerfile
+      args:
+        WWWGROUP: "1234"
+    image: sail-8.0/app
+    container_name: score-service
+    ports:
+      - "${APP_PORT:-8088}:80"
+    environment:
+      WWWUSER: "sail"
+      LARAVEL_SAIL: 1
+    volumes:
+      - "./apps/score-service/:/var/www/html"
+    networks:
+      - bridge-network
+    # depends_on:
+    #   - mysql
+    #   # - pgsql
+    #   - redis
+    #   # - selenium
 networks:
   bridge-network:
     driver: "bridge"
