@@ -105,7 +105,7 @@ services:
     #   # - selenium
   eventos-cpf-service:
     build:
-      context: ./apps/eventos-cpf-service/vendor/laravel/sail/runtimes/8.0
+      context: ./apps/eventos-cpf-service/docker/8.0
       dockerfile: Dockerfile
       args:
         WWWGROUP: "1234"
@@ -122,6 +122,7 @@ services:
       - bridge-network
     depends_on:
       - redis
+      - mongo
   redis:
     image: "redis:alpine"
     container_name: redis
