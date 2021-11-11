@@ -103,6 +103,38 @@ services:
     #   # - pgsql
     #   - redis
     #   # - selenium
+  eventos-cpf-service:
+    build:
+      context: ./apps/eventos-cpf-service/vendor/laravel/sail/runtimes/8.0
+      dockerfile: Dockerfile
+      args:
+        WWWGROUP: "1234"
+    image: sail-8.0/app
+    container_name: eventos-cpf-service
+    ports:
+      - "${APP_PORT:-8090}:80"
+    environment:
+      WWWUSER: "sail"
+      LARAVEL_SAIL: 1
+    volumes:
+      - "./apps/eventos-cpf-service/:/var/www/html"
+    networks:
+      - bridge-network
+    depends_on:
+      - redis
+  redis:
+    image: "redis:alpine"
+    container_name: redis
+    ports:
+      - "${FORWARD_REDIS_PORT:-6379}:6379"
+    volumes:
+      - "./databases/redis/data/:/data"
+    networks:
+      - bridge-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      retries: 3
+      timeout: 5s
 networks:
   bridge-network:
     driver: "bridge"
