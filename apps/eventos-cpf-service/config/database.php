@@ -90,6 +90,7 @@ return [
             'password' => env('REDIS_PASSWORD', null),
             'port' => env('REDIS_PORT', '6379'),
             'database' => env('REDIS_DB', '0'),
+            'timeout' => env('REDIS_DB_TIMEOUT', '5'),
         ],
 
         'cache' => [
@@ -98,6 +99,7 @@ return [
             'password' => env('REDIS_PASSWORD', null),
             'port' => env('REDIS_PORT', '6379'),
             'database' => env('REDIS_CACHE_DB', '1'),
+            'timeout' => env('REDIS_CACHE_DB_TIMEOUT', '5'),
         ],
 
     ],
