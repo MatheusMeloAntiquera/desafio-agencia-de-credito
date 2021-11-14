@@ -34,8 +34,14 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        $this->reportable(function (Throwable $e) {
-            //
+        $this->renderable(function (Throwable $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    "sucesso" => false,
+                    //Todo: não enviar mensagem de erro da exception e sim uma mensagem generica e criar log com o erro completo
+                    'message' => $e->getMessage(),
+                ], 500);
+            }
         });
     }
 }

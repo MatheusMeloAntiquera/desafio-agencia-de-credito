@@ -35,7 +35,8 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: teste
-      ME_CONFIG_MONGODB_URL: mongodb://root:teste@mongo:27017/
+      ME_CONFIG_MONGODB_URL: mongodb://root:teste@mongo:27017
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: true
     depends_on:
       - mongo
     networks:
@@ -61,7 +62,7 @@ services:
     networks:
       - bridge-network
 
-  busca-dados-consumidores:
+  busca-dados:
     build: ./apps/busca-dados-consumidores/
     container_name: bdc
     restart: unless-stopped
@@ -103,25 +104,28 @@ services:
     #   # - pgsql
     #   - redis
     #   # - selenium
-  eventos-cpf-service:
+  eventos-service:
     build:
-      context: ./apps/eventos-cpf-service/vendor/laravel/sail/runtimes/8.0
+      context: ./apps/eventos-cpf-service/docker/8.0
       dockerfile: Dockerfile
       args:
         WWWGROUP: "1234"
     image: sail-8.0/app
-    container_name: eventos-cpf-service
+    container_name: eventos-service
     ports:
       - "${APP_PORT:-8090}:80"
     environment:
       WWWUSER: "sail"
       LARAVEL_SAIL: 1
+      DB_HOST: 'mongo'
+      DB_PORT: '27017'
     volumes:
       - "./apps/eventos-cpf-service/:/var/www/html"
     networks:
       - bridge-network
     depends_on:
       - redis
+      - mongo
   redis:
     image: "redis:alpine"
     container_name: redis
