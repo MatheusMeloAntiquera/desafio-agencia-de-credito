@@ -22,7 +22,7 @@ Para consumir e tratar esses dados serão criadas 3 serviços, sendo eles:
 
 O desenho abaixo exemplifica como seria esse cenário:
 
-![image](https://user-images.githubusercontent.com/33763956/140627506-40d16b28-2616-434d-b02f-ca7c17dcad2c.png)
+![image](https://user-images.githubusercontent.com/33763956/141665541-3656d74d-27df-4e9f-9058-52b567f45ec9.png)
 
 ## Detalhes sobre o Desenho
 
