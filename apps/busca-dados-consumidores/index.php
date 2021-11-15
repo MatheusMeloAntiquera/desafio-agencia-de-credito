@@ -24,6 +24,5 @@ try {
 
     $server->handleRequest();
 } catch (Throwable $error) {
-    echo '<pre>'; print_r($error); echo '</pre>';
     StandardServer::send500Error($error);
 }
