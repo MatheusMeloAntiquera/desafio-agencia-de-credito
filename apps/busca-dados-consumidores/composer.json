@@ -2,10 +2,15 @@
     "autoload": {
         "psr-4": {
             "App\\": ".//",
-            "App\\Types\\": "types//"
+            "App\\Types\\": "types//",
+            "App\\Entities\\": "entities//"
         }
     },
     "require": {
-        "webonyx/graphql-php": "^14.11"
+        "webonyx/graphql-php": "^14.11",
+        "symfony/orm-pack": "^2.1"
+    },
+    "require-dev": {
+        "symfony/maker-bundle": "^1.35"
     }
 }
