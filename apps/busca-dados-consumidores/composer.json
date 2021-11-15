@@ -8,7 +8,8 @@
     },
     "require": {
         "webonyx/graphql-php": "^14.11",
-        "symfony/orm-pack": "^2.1"
+        "symfony/orm-pack": "^2.1",
+        "vlucas/phpdotenv": "^5.4"
     },
     "require-dev": {
         "symfony/maker-bundle": "^1.35"
