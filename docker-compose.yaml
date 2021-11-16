@@ -1,4 +1,11 @@
-version: "3.1"
+version: "3.9"
+
+# x-kong-config: &kong-env
+#   KONG_DATABASE: ${KONG_DATABASE:-off}
+#   KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
+#   KONG_PG_HOST: kong-db
+#   KONG_PG_USER: ${KONG_PG_USER:-kong}
+#   KONG_PG_PASSWORD: ${KONG_PG_USER:-kong}
 
 services:
   postgres:
@@ -13,7 +20,7 @@ services:
       - 5432:5432
     networks:
       - bridge-network
-  mongo:
+  mongo-base-b:
     image: mongo
     container_name: base-b-mongo
     restart: unless-stopped
@@ -36,53 +43,33 @@ services:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: teste
       ME_CONFIG_MONGODB_URL: mongodb://root:teste@mongo:27017
-      ME_CONFIG_MONGODB_ENABLE_ADMIN: true
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
     depends_on:
       - mongo
     networks:
       - bridge-network
-  elasticsearch:
-    container_name: base-c-elasticsearch
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.1
-    restart: unless-stopped
-    environment:
-      - discovery.type=single-node
-    volumes:
-      - ./databases/elasticsearch/data:/usr/share/elasticsearch/data
-    ports:
-      - 9200:9200
-    networks:
-      - bridge-network
-  kibana:
-    container_name: kibana
-    image: docker.elastic.co/kibana/kibana:7.15.1
-    restart: unless-stopped
-    ports:
-      - 5601:5601
-    networks:
-      - bridge-network
-
   busca-dados:
     build: ./apps/busca-dados-consumidores/
     container_name: bdc
+    hostname: busca-dados
     working_dir: /var/www/
     volumes:
       - ./apps/busca-dados-consumidores/:/var/www
-    depends_on: 
+    depends_on:
       - postgres
-      - nginx
+      # - nginx
     networks:
       - bridge-network
-  nginx:
-    image: nginx:alpine
-    container_name: php-nginx
-    ports:
-      - 8000:80
-    volumes:
-      - ./apps/busca-dados-consumidores/:/var/www
-      - ./nginx/conf.d/:/etc/nginx/conf.d/
-    networks:
-      - bridge-network
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: php-nginx
+  #   ports:
+  #     - 8000:80
+  #   volumes:
+  #     - ./apps/busca-dados-consumidores/:/var/www
+  #     - ./nginx/conf.d/:/etc/nginx/conf.d/
+  #   networks:
+  #     - bridge-network
   score-service:
     build:
       context: ./apps/score-service/vendor/laravel/sail/runtimes/8.0
@@ -118,8 +105,8 @@ services:
     environment:
       WWWUSER: "sail"
       LARAVEL_SAIL: 1
-      DB_HOST: 'mongo'
-      DB_PORT: '27017'
+      DB_HOST: "mongo"
+      DB_PORT: "27017"
     volumes:
       - "./apps/eventos-cpf-service/:/var/www/html"
     networks:
@@ -140,6 +127,58 @@ services:
       test: ["CMD", "redis-cli", "ping"]
       retries: 3
       timeout: 5s
+  kong:
+    image: kong:latest
+    user: "kong"
+    container_name: kong
+    # command: kong migrations bootstrap
+    env_file:
+      - ./kong/.env
+    environment:
+      # <<: *kong-env
+      KONG_DATABASE: postgres
+      KONG_PG_DATABASE: kong
+      KONG_PG_HOST: kong-db
+      KONG_PG_PORT: 5432
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kong
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_PROXY_LISTEN: "${KONG_PROXY_LISTEN:-0.0.0.0:8000}"
+      KONG_ADMIN_LISTEN: "${KONG_ADMIN_LISTEN:-0.0.0.0:8001}"
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_PREFIX: ${KONG_PREFIX:-/var/run/kong}
+      KONG_DECLARATIVE_CONFIG: "/opt/kong/kong.yaml"
+    volumes:
+      - ./kong-prefix/:${KONG_PREFIX:-/var/run/kong}
+      - ./kong/config:/opt/kong
+    security_opt:
+      - no-new-privileges
+    depends_on:
+      - kong-db
+    ports:
+      - "443:8443"
+      - "8001:8001"
+      - "8000:8000"
+    networks:
+      - bridge-network
+  kong-db:
+    env_file:
+      - ./kong/.env
+    image: postgres:9.5
+    container_name: kong-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: kong
+      POSTGRES_USER: kong
+      POSTGRES_PASSWORD: kong
+    volumes:
+      - ./kong/postgres/data/:/var/lib/postgresql/data
+    ports:
+      - 54322:5432
+    networks:
+      - bridge-network
 networks:
   bridge-network:
     driver: "bridge"

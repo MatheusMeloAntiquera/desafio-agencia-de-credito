@@ -22,4 +22,6 @@ COPY ./composer.* /var/www
 
 WORKDIR /var/www
 
+EXPOSE 8000
+
 CMD bash -c "composer install && composer dump-autoload -o && php-fpm --nodaemonize"
