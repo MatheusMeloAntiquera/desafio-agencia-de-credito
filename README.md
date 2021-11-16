@@ -10,7 +10,7 @@ A arquitetura foi planejada tentando atender todos os requisitos solicitados pel
 Para consumir e tratar esses dados serão criadas 3 serviços, sendo eles:
 
 #### Serviço de Busca Dados Sensíveis
-  - Consultará a Base A (Postgres) e disponibiliza os dados usando GraphQL
+  - Consultará a Base A (Postgres) e disponibiliza os dados usando GraphQL(https://webonyx.github.io/graphql-php/) e Doctrine ORM (https://www.doctrine-project.org/projects/doctrine-orm/en/2.10/index.html)
 #### Serviço de Análise de Score de Crédito
   - Consultará a Base B (Mongodb) e poderá determinar o score do consumidor de acordo com as informações obtidas
   - O resultado do score será disponibilizado através de uma API REST
@@ -48,7 +48,7 @@ A escolha do Mongodb para base B e C se da pelo fato de ser "relativamente mais 
 O Redis foi a estratégia escolhida para trazer desempenho para esse serviço. A vida útil do cache criado é pequena nesse exemplo garantir que qualquer atualiação recente seja exibida a aplicação que consume o serviço.
 #### GraphQL
 
-Acredito que o primeiro serviço deve ser bem flexivel na hora de ser consumido, possíbilitando a aplicação escolher os dados, por isso a escolha dessa ferramenta
+Acredito que o primeiro serviço deve ser bem flexível na hora de ser consumido, possíbilitando quem consumi-lo escolher os dados, por isso a escolha dessa ferramenta
 ## Como rodar o projeto
 
 ```shell
