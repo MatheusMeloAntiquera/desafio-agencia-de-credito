@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+# Instalando as dependencias no vendor para criar o volume
+composer install
+
+# Testando a conexão com container do mongo antes de rodar o migration
+until mongo --host "$DB_HOST" --port "$DB_PORT"
+do
+    echo "mongo --host $DB_HOST --port $DB_PORT"
+
+    echo "Esperando por conexão com MongoDB..."
+    sleep 15
+done
+
+# Criando consumidores para teste
+php artisan migrate
+
+if [ ! -z "$WWWUSER" ]; then
+    usermod -u $WWWUSER sail
+fi
+
+if [ ! -d /.composer ]; then
+    mkdir /.composer
+fi
+
+chmod -R ugo+rw /.composer
+
+if [ $# -gt 0 ]; then
+    exec gosu $WWWUSER "$@"
+else
+    /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+fi
