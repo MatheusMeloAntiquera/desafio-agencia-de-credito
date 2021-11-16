@@ -65,16 +65,17 @@ services:
   busca-dados:
     build: ./apps/busca-dados-consumidores/
     container_name: bdc
-    restart: unless-stopped
     working_dir: /var/www/
     volumes:
       - ./apps/busca-dados-consumidores/:/var/www
+    depends_on: 
+      - postgres
+      - nginx
     networks:
       - bridge-network
   nginx:
     image: nginx:alpine
     container_name: php-nginx
-    restart: unless-stopped
     ports:
       - 8000:80
     volumes:
